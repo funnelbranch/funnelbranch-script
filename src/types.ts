@@ -1,4 +1,8 @@
-type SubmitMatchRequest = {
+export type Options = {
+  projectId: string;
+};
+
+export type SubmitMatchRequest = {
   projectId: string;
   visitorId: string;
   controlGroup: string;
@@ -7,6 +11,3 @@ type SubmitMatchRequest = {
     event?: string;
   };
 };
-export function submitMatch() {
-  console.log('submitting match');
-}

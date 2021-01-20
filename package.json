@@ -6,7 +6,7 @@
   "scripts": {
     "build": "webpack --mode production",
     "deploy": "node deploy.js",
-    "serve": "serve test"
+    "serve": "serve"
   },
   "dependencies": {},
   "devDependencies": {
