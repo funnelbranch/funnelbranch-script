@@ -1,7 +1,7 @@
 on: push
 
 jobs:
-  production-build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
