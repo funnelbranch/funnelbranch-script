@@ -4,10 +4,12 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "build": "webpack --mode production"
+    "build": "webpack --mode production",
+    "deploy": "node deploy.js"
   },
   "dependencies": {},
   "devDependencies": {
+    "aws-sdk": "^2.829.0",
     "ts-loader": "^8.0.14",
     "typescript": "^4.1.3",
     "webpack": "^5.16.0",
