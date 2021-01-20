@@ -1,31 +1,23 @@
-import { Message } from './message';
+type Options = {
+  projectId: string;
+};
 
 class Funnelbranch {
-  private initialized = false;
-
-  initialize(projectId: string) {
-    if (this.initialized) {
-      console.error('Funnelbranch is already initialized');
-      return;
-    }
-    const message = `${Message.hello} ${Message.world}`;
-    console.log(`Initialize: ${message} - ${projectId}`);
-    this.initialized = true;
+  public static initialize(options: Options) {
+    return new Funnelbranch(options);
   }
 
-  submitEvent(event: string) {
-    console.log(`Event: ${event}`);
+  private constructor(private readonly options: Options) {
+    // TODO: start tracking URLs
   }
 
-  submitUrl(url: string) {
-    console.log(`URL: ${url}`);
+  public submitEvent(event: string) {
+    console.log(`Project: ${this.options.projectId}, Event: ${event}`);
+  }
+
+  public submitUrl(url: string) {
+    console.log(`Project: ${this.options.projectId}, URL: ${url}`);
   }
 }
 
 (window as any).Funnelbranch = Funnelbranch;
-// TODO: only auto-initialize if there's a Project ID in the script's query string - otherwise require manual initialization
-if (true) {
-  let funnelbranch = new Funnelbranch();
-  funnelbranch.initialize('abc');
-  (window as any).funnelbranch = funnelbranch;
-}
