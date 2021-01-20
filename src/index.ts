@@ -13,12 +13,19 @@ class Funnelbranch {
     this.initialized = true;
   }
 
-  event(name: string) {
-    console.log(`Event: ${name}`);
+  submitEvent(event: string) {
+    console.log(`Event: ${event}`);
+  }
+
+  submitUrl(url: string) {
+    console.log(`URL: ${url}`);
   }
 }
 
-const funnelbranch = new Funnelbranch();
+(window as any).Funnelbranch = Funnelbranch;
 // TODO: only auto-initialize if there's a Project ID in the script's query string - otherwise require manual initialization
-funnelbranch.initialize('abc');
-Object.assign(window, { funnelbranch });
+if (true) {
+  let funnelbranch = new Funnelbranch();
+  funnelbranch.initialize('abc');
+  (window as any).funnelbranch = funnelbranch;
+}

@@ -21,4 +21,7 @@ jobs:
         run: yarn build
 
       - name: 'Deploy Script to S3'
-        run: yarn deploy ${{ secrets.AWS_ACCESS_KEY }} ${{ secrets.AWS_SECRET_KEY }}
+        run: yarn deploy
+        env:
+          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}

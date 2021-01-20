@@ -6,18 +6,15 @@ const FILE = path.join(__dirname, 'build', 'funnelbranch.js');
 const BUCKET = 'funnelbranch-assets';
 const DESTINATION = 'script/funnelbranch.js';
 
-const args = process.argv.slice(2);
-const accessKeyId = args[0];
-const secretAccessKey = args[1];
-
-const usage = `\nUsage: ${path.basename(process.argv[1])} <AWS_ACCESS_KEY> <AWS_SECRET_KEY>\n`;
+const accessKeyId = process.env.AWS_ACCESS_KEY;
+const secretAccessKey = process.env.AWS_SECRET_KEY;
 
 if (!accessKeyId) {
-  console.error(`Missing AWS access key\n${usage}`);
+  console.error(`Missing AWS access key`);
   process.exit(1);
 }
 if (!secretAccessKey) {
-  console.error(`Missing AWS secret key\n${usage}`);
+  console.error(`Missing AWS secret key`);
   process.exit(1);
 }
 
@@ -51,7 +48,6 @@ if (!secretAccessKey) {
     console.log('Success');
   } catch (err) {
     console.error(err);
-    console.error(usage);
     process.exit(1);
   }
 })();
