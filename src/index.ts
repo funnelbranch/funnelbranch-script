@@ -1,4 +1,4 @@
-import { Browser } from './browser/browser';
+import { BrowserService } from './browserService/browserService';
 import { UrlService } from './urlService/UrlService';
 import { Options, SubmitMatchRequest } from './types';
 
@@ -63,7 +63,7 @@ class Funnelbranch {
   };
 
   private getVisitorId = () => {
-    return Browser.getVisitorCookie() || Browser.setVisitorCookie(this.generateVisitorId());
+    return BrowserService.getVisitorCookie() || BrowserService.setVisitorCookie(this.generateVisitorId());
   };
 
   private isSubmittable = () => {
@@ -80,7 +80,7 @@ class Funnelbranch {
     if (this.lastRequest && this.areTheSame(this.lastRequest, request)) {
       return;
     }
-    console.log(request);
+    BrowserService.post(request);
     this.lastRequest = request;
   };
 

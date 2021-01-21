@@ -1,10 +1,10 @@
-import { Browser } from '../browser/browser';
+import { BrowserService } from '../browserService/browserService';
 import { Config } from '../config';
 import { LocationCallback } from '../types';
 
-export class UrlService {
-  private static pushStateEmitterSetup = false;
+let initialized = false;
 
+export class UrlService {
   public static getLocation(): Location {
     if (!('location' in window)) {
       return {} as Location;
@@ -13,9 +13,9 @@ export class UrlService {
   }
 
   public static trackSpaUrls(callback: LocationCallback): void {
-    if (!this.pushStateEmitterSetup) {
+    if (!initialized) {
       this.setupPushStateEmitter();
-      this.pushStateEmitterSetup = true;
+      initialized = true;
     }
     this.listen([Config.pushEventName, 'hashchange', 'popstate'], () => {
       callback(this.getLocation());
@@ -27,7 +27,7 @@ export class UrlService {
       return;
     }
     const original = window.history.pushState;
-    const emitPushState = () => Browser.emitEvent(Config.pushEventName);
+    const emitPushState = () => BrowserService.emitEvent(Config.pushEventName);
     window.history.pushState = function (...args) {
       const result = original.apply(this, args);
       emitPushState();

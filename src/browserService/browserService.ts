@@ -1,6 +1,6 @@
 import { Config } from '../config';
 
-export class Browser {
+export class BrowserService {
   public static setVisitorCookie(value: string) {
     document.cookie = `${Config.visitorCookieName}=${value};max-age=${Config.visitorCookieAge};path=/`;
     return value;
@@ -32,13 +32,14 @@ export class Browser {
     }
   }
 
-  public static post(body: Record<string, any>) {
+  public static post(request: Record<string, any>) {
     const contentTypeKey = 'Content-Type';
     const contentTypeValue = 'application/json';
+    const body = JSON.stringify(request);
     if ('fetch' in window) {
       fetch(Config.apiEndpoint, {
         method: 'POST',
-        body: JSON.stringify(body),
+        body,
         headers: { [contentTypeKey]: contentTypeValue },
       });
       return;
@@ -48,7 +49,7 @@ export class Browser {
       const xhr = new XMLHttpRequest();
       xhr.open('POST', Config.apiEndpoint, true);
       xhr.setRequestHeader(contentTypeKey, contentTypeValue);
-      xhr.send(JSON.stringify(body));
+      xhr.send(body);
       return;
     }
     console.error(`Funnelbranch: 'fetch' and 'XMLHttpRequest' both unavailable`);
