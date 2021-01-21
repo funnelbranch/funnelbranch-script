@@ -85,7 +85,7 @@ class Funnelbranch {
   };
 
   private generateVisitorId = () => {
-    return `vis_${Math.random().toFixed(8).slice(2)}`;
+    return `vis_${Math.random().toFixed(17).slice(2)}`;
   };
 
   private extractUrl = (location: Location) => {
