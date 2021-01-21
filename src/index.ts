@@ -1,45 +1,109 @@
 import { Browser } from './browser/browser';
+import { UrlService } from './urlService/UrlService';
 import { Options, SubmitMatchRequest } from './types';
 
+let initialized = false;
+
 class Funnelbranch {
-  public static initialize(options: Options) {
-    return new Funnelbranch(options);
+  public static initialize(options = {} as Options) {
+    if (initialized) {
+      console.error('Funnelbranch: already initialized');
+      return;
+    }
+    if (typeof options.trackClientUrlChanges === 'undefined') {
+      options.trackClientUrlChanges = true;
+    }
+    if (typeof options.submitOnLocalhost === 'undefined') {
+      options.submitOnLocalhost = false;
+    }
+    const instance = new Funnelbranch(options);
+    initialized = true;
+    return instance;
   }
 
-  private visitorId: string;
+  private localhost: boolean;
+  private destroyed: boolean = false;
+  private lastRequest?: SubmitMatchRequest;
 
   private constructor(private readonly options: Options) {
-    // Retrieve or generate visitor ID
-    let visitorId = Browser.getVisitor();
-    if (visitorId) {
-      console.log(`Re-using existing visitor ID: ${visitorId}`);
-    } else {
-      visitorId = this.generateVisitorId();
-      Browser.setVisitor(visitorId);
-      console.log(`NEW visistor ID: ${visitorId}`);
+    this.localhost = UrlService.getLocation().hostname === 'localhost';
+    if (this.localhost && !options.submitOnLocalhost) {
+      console.warn('Funnelbranch: disabled on localhost');
     }
-    this.visitorId = visitorId;
-    // TOOD: start tracking URLs
+    this.submitUrl(UrlService.getLocation());
+    UrlService.trackSpaUrls(this.submitUrl);
   }
 
-  public submitUrl(url: string) {
-    console.log(`Project: ${this.options.projectId}, Visitor: ${this.visitorId}, URL: ${url}`);
-  }
+  public destroy = () => {
+    this.destroyed = true;
+    initialized = false;
+  };
 
-  public submitEvent(event: string) {
-    console.log(`Project: ${this.options.projectId}, Visitor: ${this.visitorId}, Event: ${event}`);
-  }
+  public submitEvent = (event?: string) => {
+    if (event && this.isSubmittable()) {
+      this.submitMatch({
+        projectId: this.options.projectId,
+        controlGroup: this.options.controlGroup,
+        visitorId: this.getVisitorId(),
+        trigger: { event },
+      });
+    }
+  };
 
-  public destroy() {
-    // TODO
-  }
+  private submitUrl = (location?: Location) => {
+    if (location && this.isSubmittable()) {
+      const url = this.extractUrl(location);
+      this.submitMatch({
+        projectId: this.options.projectId,
+        controlGroup: this.options.controlGroup,
+        visitorId: this.getVisitorId(),
+        trigger: { url },
+      });
+    }
+  };
 
-  private generateVisitorId() {
+  private getVisitorId = () => {
+    return Browser.getVisitorCookie() || Browser.setVisitorCookie(this.generateVisitorId());
+  };
+
+  private isSubmittable = () => {
+    if (this.destroyed) {
+      return false;
+    }
+    if (this.localhost && !this.options.submitOnLocalhost) {
+      return false;
+    }
+    return true;
+  };
+
+  private submitMatch = (request: SubmitMatchRequest) => {
+    if (this.lastRequest && this.areTheSame(this.lastRequest, request)) {
+      return;
+    }
+    console.log(request);
+    this.lastRequest = request;
+  };
+
+  private generateVisitorId = () => {
     return `vis_${Math.random().toFixed(8).slice(2)}`;
-  }
+  };
 
-  private submitMatch(request: SubmitMatchRequest) {
-    // TODO
+  private extractUrl = (location: Location) => {
+    let result = location.pathname;
+    if (location.hash) {
+      result += location.hash;
+    }
+    return result;
+  };
+
+  private areTheSame(r1: SubmitMatchRequest, r2: SubmitMatchRequest) {
+    return (
+      r1.projectId === r2.projectId &&
+      r1.controlGroup === r2.controlGroup &&
+      r1.visitorId === r2.visitorId &&
+      r1.trigger.url === r2.trigger.url &&
+      r1.trigger.event === r2.trigger.event
+    );
   }
 }
 

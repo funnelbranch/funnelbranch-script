@@ -1,28 +1,42 @@
-export class Browser {
-  private static API = 'https://api.funnelbranch.com';
-  private static COOKIE = 'funnelbranch_visitor';
-  private static AGE = 300;
+import { Config } from '../config';
 
-  public static setVisitor(value: string) {
-    document.cookie = `${this.COOKIE}=${value}; max-age=${this.AGE}`;
+export class Browser {
+  public static setVisitorCookie(value: string) {
+    document.cookie = `${Config.visitorCookieName}=${value};max-age=${Config.visitorCookieAge};path=/`;
+    return value;
   }
 
-  public static getVisitor() {
+  public static getVisitorCookie() {
     const cookies = document.cookie.split(';');
     for (let index = 0, length = cookies.length; index < length; index++) {
       const [name, value] = cookies[index].split('=');
-      if (name === this.COOKIE) {
-        return value;
+      if (name.trim() === Config.visitorCookieName) {
+        return value.trim();
       }
     }
     return undefined;
   }
 
-  public static post(url: string, body: Record<string, any>) {
+  public static emitEvent(type: string) {
+    // Create
+    let event;
+    if (typeof Event === 'function') {
+      event = new Event(type);
+    } else if ('createEvent' in document) {
+      event = document.createEvent('Event'); // Fix for IE
+      event.initEvent(type, true, true);
+    }
+    // Dispatch
+    if (event && 'dispatchEvent' in window) {
+      window.dispatchEvent(event);
+    }
+  }
+
+  public static post(body: Record<string, any>) {
     const contentTypeKey = 'Content-Type';
     const contentTypeValue = 'application/json';
     if ('fetch' in window) {
-      fetch(`${this.API}${url}`, {
+      fetch(Config.apiEndpoint, {
         method: 'POST',
         body: JSON.stringify(body),
         headers: { [contentTypeKey]: contentTypeValue },
@@ -32,11 +46,11 @@ export class Browser {
     // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/send#example_post
     if ('XMLHttpRequest' in window) {
       const xhr = new XMLHttpRequest();
-      xhr.open('POST', `${this.API}${url}`, true);
+      xhr.open('POST', Config.apiEndpoint, true);
       xhr.setRequestHeader(contentTypeKey, contentTypeValue);
       xhr.send(JSON.stringify(body));
       return;
     }
-    console.error('Browser unsupported');
+    console.error(`Funnelbranch: 'fetch' and 'XMLHttpRequest' both unavailable`);
   }
 }
