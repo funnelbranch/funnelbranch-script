@@ -1,3 +1,4 @@
+import { BotService } from './botService/BotService';
 import { BrowserService } from './browserService/browserService';
 import { HistoryService } from './historyService/HistoryService';
 import './polyfills/objectAssign';
@@ -13,6 +14,7 @@ type SubmitMatchRequest = {
   projectId: string;
   visitorId: string;
   controlGroup?: string;
+  bot: boolean;
   trigger: {
     url?: string;
     event?: string;
@@ -87,10 +89,11 @@ class Funnelbranch {
       projectId: this.projectId,
       controlGroup: this.options.controlGroup,
       visitorId: Funnelbranch.getVisitorId(),
+      bot: BotService.isBot(),
       trigger: { url, event },
     };
     if (this.lastRequest && Funnelbranch.areTheSame(this.lastRequest, request)) {
-      return;
+      return; // Doesn't make sense for Funnelbranch to submit the same match twice
     }
     this.lastRequest = BrowserService.post(request);
   };
