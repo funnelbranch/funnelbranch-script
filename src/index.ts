@@ -1,7 +1,7 @@
-import { BotService } from './botService/botServicex';
-import { CookieService } from './cookieService/cookieServicex';
-import { HistoryService } from './historyService/historyServicex';
-import { HttpService } from './httpService/httpServicex';
+import { BotService } from './botService/botService';
+import { CookieService } from './cookieService/cookieService';
+import { HistoryService } from './historyService/historyService';
+import { HttpService } from './httpService/httpService';
 import './polyfills/objectAssign';
 
 // Types
