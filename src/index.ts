@@ -1,7 +1,7 @@
 import { BotService } from './botService/botService';
 import { CookieService } from './cookieService/cookieService';
 import { HistoryService } from './historyService/historyService';
-import { HttpService } from './httpService/httpServicex';
+import { HttpService } from './httpService/httpService';
 import './polyfills/objectAssign';
 
 // Types
@@ -34,12 +34,10 @@ class Funnelbranch {
 
   public static initialize(projectId: string, options: Options): Funnelbranch | undefined {
     if (this.INIT) {
-      console.error('Funnelbranch: already initialized');
-      return;
+      throw new Error('Funnelbranch: already initialized');
     }
     if (!projectId) {
-      console.error('Funnelbranch: missing project ID');
-      return;
+      throw new Error('Funnelbranch: missing project ID');
     }
     const instance = new Funnelbranch(projectId, Object.assign({}, this.DEFAULT_OPTIONS, options));
     this.INIT = true;
