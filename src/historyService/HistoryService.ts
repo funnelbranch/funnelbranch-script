@@ -1,10 +1,15 @@
 import { BrowserService } from '../browserService/browserService';
-import { Config } from '../config';
-import { LocationCallback } from '../types';
 
-let initialized = false;
+// Config
+const PUSH_STATE_EVENT = 'funnelbranch_pushstate';
 
-export class UrlService {
+// Types
+type LocationCallback = (location: Location) => void;
+
+// Service
+export class HistoryService {
+  private static init = false;
+
   public static getLocation(): Location {
     if (!('location' in window)) {
       return {} as Location;
@@ -13,11 +18,11 @@ export class UrlService {
   }
 
   public static trackSpaUrls(callback: LocationCallback): void {
-    if (!initialized) {
+    if (!this.init) {
       this.setupPushStateEmitter();
-      initialized = true;
+      this.init = true;
     }
-    this.listen([Config.pushEventName, 'hashchange', 'popstate'], () => {
+    this.listen([PUSH_STATE_EVENT, 'hashchange', 'popstate'], () => {
       callback(this.getLocation());
     });
   }
@@ -27,7 +32,7 @@ export class UrlService {
       return;
     }
     const original = window.history.pushState;
-    const emitPushState = () => BrowserService.emitEvent(Config.pushEventName);
+    const emitPushState = () => BrowserService.emitEvent(PUSH_STATE_EVENT);
     window.history.pushState = function (...args) {
       const result = original.apply(this, args);
       emitPushState();

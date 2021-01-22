@@ -18,4 +18,8 @@ module.exports = {
     filename: 'funnelbranch.js',
     path: path.resolve(__dirname, 'build'),
   },
+  performance: {
+    hints: 'error',
+    maxAssetSize: 5 * 1024, // 5kB
+  },
 };

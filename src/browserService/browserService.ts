@@ -1,16 +1,17 @@
-import { Config } from '../config';
+const VISITOR_COOKIE_NAME = 'funnelbranch_visitor';
+const VISITOR_COOKIE_AGE = 24 * 60 * 60;
+const API_ENDPOINT = 'https://api.funnelbranch.com/m';
 
 export class BrowserService {
   public static setVisitorCookie(value: string) {
-    document.cookie = `${Config.visitorCookieName}=${value};max-age=${Config.visitorCookieAge};path=/`;
-    return value;
+    document.cookie = `${VISITOR_COOKIE_NAME}=${value};max-age=${VISITOR_COOKIE_AGE};path=/`;
   }
 
   public static getVisitorCookie() {
     const cookies = document.cookie.split(';');
     for (let index = 0, length = cookies.length; index < length; index++) {
       const [name, value] = cookies[index].split('=');
-      if (name.trim() === Config.visitorCookieName) {
+      if (name.trim() === VISITOR_COOKIE_NAME) {
         return value.trim();
       }
     }
@@ -32,25 +33,25 @@ export class BrowserService {
     }
   }
 
-  public static post(request: Record<string, any>) {
+  public static post<R>(request: R): R | undefined {
     const contentTypeKey = 'Content-Type';
     const contentTypeValue = 'application/json';
     const body = JSON.stringify(request);
     if ('fetch' in window) {
-      fetch(Config.apiEndpoint, {
+      fetch(API_ENDPOINT, {
         method: 'POST',
         body,
         headers: { [contentTypeKey]: contentTypeValue },
       });
-      return;
+      return request;
     }
     // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/send#example_post
     if ('XMLHttpRequest' in window) {
       const xhr = new XMLHttpRequest();
-      xhr.open('POST', Config.apiEndpoint, true);
+      xhr.open('POST', API_ENDPOINT, true);
       xhr.setRequestHeader(contentTypeKey, contentTypeValue);
       xhr.send(body);
-      return;
+      return request;
     }
     console.error(`Funnelbranch: 'fetch' and 'XMLHttpRequest' both unavailable`);
   }
