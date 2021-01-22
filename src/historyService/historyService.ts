@@ -38,8 +38,6 @@ export class HistoryService {
   private trackingCallback?: LocationCallback;
   private events = [PUSH_STATE_EVENT, 'hashchange', 'popstate'];
 
-  public constructor() {}
-
   public trackSpaUrls(trackingCallback: LocationCallback) {
     if (!HistoryService.SETUP) {
       HistoryService.setupPushStateEmitter();

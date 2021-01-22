@@ -1,7 +1,7 @@
 import { BotService } from './botService/botService';
 import { CookieService } from './cookieService/cookieService';
 import { HistoryService } from './historyService/historyService';
-import { HttpService } from './httpService/httpService';
+import { HttpService } from './httpService/httpServicex';
 import './polyfills/objectAssign';
 
 // Types
