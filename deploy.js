@@ -2,7 +2,7 @@ const AWS = require('aws-sdk');
 const fsp = require('fs').promises;
 const path = require('path');
 
-async function publish() {
+async function deploy() {
   const FILE = path.join(__dirname, 'build', 'funnelbranch.js');
   const BUCKET = 'funnelbranch-assets';
   const DESTINATION = 'script/funnelbranch.js';
@@ -37,7 +37,7 @@ async function publish() {
     .promise();
 }
 
-publish().catch((err) => {
+deploy().catch((err) => {
   console.error(err);
   process.exit(1);
 });
