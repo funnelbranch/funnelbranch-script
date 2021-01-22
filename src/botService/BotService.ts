@@ -1,5 +1,5 @@
 export class BotService {
-  public static isBot() {
+  public isBot() {
     // TODO: check for things like:
     //  - UA = bot,crawl,spider
     //  - PhantomJS, Cypress, Selenium

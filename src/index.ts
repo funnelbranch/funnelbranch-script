@@ -1,6 +1,7 @@
-import { BotService } from './botService/BotService';
-import { BrowserService } from './browserService/browserService';
-import { HistoryService } from './historyService/HistoryService';
+import { BotService } from './botService/botService';
+import { CookieService } from './cookieService/cookieService';
+import { HistoryService } from './historyService/historyService';
+import { HttpService } from './httpService/httpService';
 import './polyfills/objectAssign';
 
 // Types
@@ -21,7 +22,7 @@ type SubmitMatchRequest = {
   };
 };
 
-// Service
+// Main class
 class Funnelbranch {
   private static INIT = false;
 
@@ -31,7 +32,7 @@ class Funnelbranch {
     trackClientHashChanges: false,
   };
 
-  public static initialize(projectId: string, options: Options) {
+  public static initialize(projectId: string, options: Options): Funnelbranch | undefined {
     if (this.INIT) {
       console.error('Funnelbranch: already initialized');
       return;
@@ -45,25 +46,39 @@ class Funnelbranch {
     return instance;
   }
 
+  private botService: BotService;
+  private cookieService: CookieService;
+  private historyService: HistoryService;
+
+  private destroyed: boolean;
   private localhost: boolean;
-  private destroyed: boolean = false;
-  private lastRequest?: SubmitMatchRequest;
+  private lastMatch?: SubmitMatchRequest;
 
   private constructor(private readonly projectId: string, private readonly options: Options) {
-    this.localhost = HistoryService.getLocation().hostname === 'localhost';
+    // Services
+    this.botService = new BotService();
+    this.cookieService = new CookieService();
+    this.historyService = new HistoryService();
+    // Variables
+    this.destroyed = false;
+    this.localhost = this.historyService.getLocation().hostname === 'localhost';
     if (this.localhost && !options.enableLocalhost) {
       console.warn('Funnelbranch: disabled on localhost');
     }
-    this.submitUrl(HistoryService.getLocation());
-    HistoryService.trackSpaUrls(this.submitUrl);
+    // URL tracking
+    if (options.trackClientUrlChanges) {
+      this.historyService.trackSpaUrls(this.submitUrl);
+    }
+    this.submitUrl(this.historyService.getLocation());
   }
 
-  public destroy = () => {
+  public destroy = (): void => {
+    this.historyService.destroy();
     this.destroyed = true;
     Funnelbranch.INIT = false;
   };
 
-  public submitEvent = (event?: string) => {
+  public submitEvent = (event?: string): void => {
     if (event) {
       this.submitMatch({ event });
     }
@@ -71,57 +86,60 @@ class Funnelbranch {
 
   private submitUrl = (location?: Location) => {
     if (location) {
-      const url = Funnelbranch.extractUrl(location);
+      const url = this.extractUrl(location);
       if (url) {
         this.submitMatch({ url });
       }
     }
   };
 
-  private submitMatch = ({ url, event }: { url?: string; event?: string }) => {
+  private submitMatch = (request: { url?: string; event?: string }): void => {
     if (this.destroyed) {
       return;
     }
     if (this.localhost && !this.options.enableLocalhost) {
       return;
     }
-    const request: SubmitMatchRequest = {
+    const match: SubmitMatchRequest = {
       projectId: this.projectId,
       controlGroup: this.options.controlGroup,
-      visitorId: Funnelbranch.getVisitorId(),
-      bot: BotService.isBot(),
-      trigger: { url, event },
+      visitorId: this.getVisitorId(),
+      bot: this.botService.isBot(),
+      trigger: {
+        url: request.url,
+        event: request.event,
+      },
     };
-    if (this.lastRequest && Funnelbranch.areTheSame(this.lastRequest, request)) {
+    if (this.lastMatch && Funnelbranch.areEqual(this.lastMatch, match)) {
       return; // Doesn't make sense for Funnelbranch to submit the same match twice
     }
-    this.lastRequest = BrowserService.post(request);
+    this.lastMatch = HttpService.post(match);
   };
 
-  private static extractUrl = (location: Location) => {
+  private extractUrl = (location: Location): string => {
     let result = location.pathname;
-    if (location.hash) {
+    if (this.options.trackClientHashChanges && location.hash) {
       result += location.hash;
     }
     return result;
   };
 
-  private static getVisitorId = () => {
-    let visitorId = BrowserService.getVisitorCookie();
+  private getVisitorId = (): string => {
+    let visitorId = this.cookieService.getVisitor();
     if (!visitorId) {
       visitorId = `vis_${Math.random().toFixed(17).slice(2)}`;
-      BrowserService.setVisitorCookie(visitorId);
+      this.cookieService.setVisitor(visitorId);
     }
     return visitorId;
   };
 
-  private static areTheSame(r1: SubmitMatchRequest, r2: SubmitMatchRequest) {
+  private static areEqual(m1: SubmitMatchRequest, m2: SubmitMatchRequest): boolean {
     return (
-      r1.projectId === r2.projectId &&
-      r1.controlGroup === r2.controlGroup &&
-      r1.visitorId === r2.visitorId &&
-      r1.trigger.url === r2.trigger.url &&
-      r1.trigger.event === r2.trigger.event
+      m1.projectId === m2.projectId &&
+      m1.controlGroup === m2.controlGroup &&
+      m1.visitorId === m2.visitorId &&
+      m1.trigger.url === m2.trigger.url &&
+      m1.trigger.event === m2.trigger.event
     );
   }
 }

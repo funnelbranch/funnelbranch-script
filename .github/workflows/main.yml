@@ -17,10 +17,10 @@ jobs:
       - name: 'Install Dependencies'
         run: yarn
 
-      - name: 'Build Script'
+      - name: 'Build'
         run: yarn build
 
-      - name: 'Deploy Script to S3'
+      - name: 'Deploy to S3'
         run: yarn deploy
         env:
           AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}

@@ -6,7 +6,7 @@
   "scripts": {
     "build": "webpack --mode production",
     "deploy": "node deploy.js",
-    "serve": "printf '\nServing: https://funnelbranch.ngrok.io/funnelbranch.js\n\n' && concurrently -k \"serve build -l 5000\" \"ngrok http 5000 --subdomain funnelbranch --log stdout\""
+    "serve": "concurrently -k \"serve build -l 5000\" \"ngrok http 5000 --subdomain funnelbranch\""
   },
   "dependencies": {},
   "devDependencies": {
