@@ -1,4 +1,6 @@
 const path = require('path');
+const { DefinePlugin } = require('webpack');
+const { execSync } = require('child_process');
 
 module.exports = {
   entry: './src/index.ts',
@@ -22,4 +24,17 @@ module.exports = {
     hints: 'error',
     maxAssetSize: 5 * 1024, // 5kB
   },
+  plugins: [
+    new DefinePlugin({
+      COMMIT_HASH: JSON.stringify(commitHash()),
+    }),
+  ],
 };
+
+function commitHash() {
+  let hash = process.env.COMMIT_HASH;
+  if (!hash) {
+    hash = execSync('git rev-parse HEAD', { encoding: 'utf-8' }).toString();
+  }
+  return hash.substring(0, 6);
+}

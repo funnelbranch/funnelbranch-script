@@ -4,6 +4,9 @@ import { HistoryService } from './historyService/historyService';
 import { HttpService } from './httpService/httpService';
 import './polyfills/objectAssign';
 
+// Config
+declare var COMMIT_HASH: string;
+
 // Types
 type Options = {
   controlGroup?: string;
@@ -31,6 +34,10 @@ class Funnelbranch {
     trackClientUrlChanges: true,
     trackClientHashChanges: false,
   };
+
+  public static scriptVersion(): string {
+    return COMMIT_HASH;
+  }
 
   public static initialize(projectId: string, options: Options): Funnelbranch | undefined {
     if (this.INIT) {
