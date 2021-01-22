@@ -84,7 +84,7 @@ class Funnelbranch {
     }
   };
 
-  private submitUrl = (location?: Location) => {
+  private submitUrl = (location?: Location): void => {
     if (location) {
       const url = this.extractUrl(location);
       if (url) {
