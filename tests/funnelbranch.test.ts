@@ -1,24 +1,53 @@
 import fs from 'fs';
 import path from 'path';
+import './jest.extensions';
 
+// https://github.com/testing-library/react-testing-library/issues/36#issuecomment-440442300
+// https://github.com/testing-library/react-testing-library/issues/36#issuecomment-444580722
 declare global {
   interface Window {
     Funnelbranch: any;
   }
+  namespace jest {
+    interface Expect {
+      jsonStringContaining: (properties: any) => object;
+    }
+  }
 }
 
 describe('funnelbranch.js', () => {
+  /**
+   * The variable below represents "window.Funnelbranch"
+   *
+   * I'm intentionally leaving it untyped to increase the probability of detecting breaking changes
+   * (consumers of <script src="funnelbranch.js"> tag don't have type definitions either...)
+   */
   let Funnelbranch: any;
 
   beforeEach(async () => {
-    const script = path.join(__dirname, '..', 'build', 'funnelbranch.js');
-    const js = await fs.promises.readFile(script, 'utf-8');
-    eval(js);
+    // Mocks
+    delete window.location;
+    window.location = {} as any;
+    window.fetch = jest.fn().mockName('fetch').mockReset();
+    // Spies
+    jest.spyOn(console, 'warn').mockName('console.warn').mockReset();
+    jest.spyOn(console, 'error').mockName('console.error').mockReset();
+    // Script
+    const funnelbranchJs = path.join(__dirname, '..', 'build', 'funnelbranch.js');
+    const javascript = await fs.promises.readFile(funnelbranchJs, 'utf-8');
+    eval(javascript);
     Funnelbranch = window.Funnelbranch;
   });
 
   it('loads', () => {
     expect(Funnelbranch).toBeTruthy();
+  });
+
+  it('has a version', () => {
+    // When
+    const version = Funnelbranch.scriptVersion();
+    // Then
+    expect(version).toHaveLength(6);
   });
 
   it('initializes', () => {
@@ -46,7 +75,7 @@ describe('funnelbranch.js', () => {
 
   it('prints a warning for localhost', () => {
     // Given
-    spyOn(console, 'warn');
+    window.location.hostname = 'localhost';
     // When
     Funnelbranch.initialize('proj_123');
     // Then
@@ -55,10 +84,34 @@ describe('funnelbranch.js', () => {
 
   it('does not print a warning for localhost when localhost is enabled', () => {
     // Given
-    spyOn(console, 'warn');
+    window.location.hostname = 'localhost';
     // When
     Funnelbranch.initialize('proj_123', { enableLocalhost: true });
     // Then
     expect(console.warn).not.toHaveBeenCalledWith('Funnelbranch: disabled on localhost');
+  });
+
+  it('submits the current URL upon initialization', () => {
+    // Given
+    window.location.pathname = '/welcome';
+    // When
+    Funnelbranch.initialize('proj_123', { enableLocalhost: true });
+    // Then
+    expect(window.fetch).toHaveBeenCalledWith(
+      'https://api.funnelbranch.com/m',
+      expect.objectContaining({
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Script-Version': expect.any(String),
+        },
+        body: expect.jsonStringContaining({
+          projectId: 'proj_123',
+          visitorId: expect.any(String),
+          bot: false,
+          trigger: { url: '/welcome' },
+        }),
+      })
+    );
   });
 });
