@@ -25,7 +25,8 @@ describe('funnelbranch.js', () => {
   let Funnelbranch: any;
 
   beforeEach(async () => {
-    // Mocks (@ts-ignore)
+    // Mocks
+    // @ts-ignore
     delete window.location;
     window.location = {} as any;
     window.fetch = jest.fn().mockName('fetch').mockReset();
