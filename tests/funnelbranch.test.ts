@@ -8,7 +8,7 @@ declare global {
 }
 
 describe('funnelbranch.js', () => {
-  let Funnelbranch;
+  let Funnelbranch: any;
 
   beforeEach(async () => {
     const script = path.join(__dirname, '..', 'build', 'funnelbranch.js');
