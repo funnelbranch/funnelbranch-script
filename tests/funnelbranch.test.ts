@@ -7,6 +7,7 @@ import './jest.extensions';
 declare global {
   interface Window {
     Funnelbranch: any;
+    funnelbranch: any;
     XMLHttpRequest: {
       open(): any;
       setRequestHeader(): any;
@@ -33,6 +34,14 @@ describe('funnelbranch.js', () => {
   let Funnelbranch: any;
   let funnelbranch: any;
 
+  async function loadScript() {
+    const funnelbranchJs = path.join(__dirname, '..', 'build', 'funnelbranch.js');
+    const javascript = await fs.promises.readFile(funnelbranchJs, 'utf-8');
+    eval(javascript);
+    Funnelbranch = window.Funnelbranch;
+    funnelbranch = undefined;
+  }
+
   beforeEach(async (done) => {
     // Mocks
     // @ts-ignore
@@ -51,15 +60,12 @@ describe('funnelbranch.js', () => {
     window.XMLHttpRequest.open = MockXMLHttpRequest.__OPEN;
     window.XMLHttpRequest.setRequestHeader = MockXMLHttpRequest.__SET_REQUEST_HEADER;
     window.XMLHttpRequest.send = MockXMLHttpRequest.__SEND;
+    document.querySelector = jest.fn().mockName('document.querySelector').mockReset();
     // Spies
     jest.spyOn(console, 'warn').mockName('console.warn').mockReset();
     jest.spyOn(console, 'error').mockName('console.error').mockReset();
-    // Script
-    const funnelbranchJs = path.join(__dirname, '..', 'build', 'funnelbranch.js');
-    const javascript = await fs.promises.readFile(funnelbranchJs, 'utf-8');
-    eval(javascript);
-    Funnelbranch = window.Funnelbranch;
-    funnelbranch = undefined;
+    // Load Script
+    await loadScript();
     done();
   });
 
@@ -83,6 +89,29 @@ describe('funnelbranch.js', () => {
     funnelbranch = Funnelbranch.initialize('proj_123');
     // Then
     expect(funnelbranch).toBeTruthy();
+  });
+
+  it('auto-initializes with a project ID in the query string', async () => {
+    // Given
+    const script = document.createElement('script');
+    script.src = 'https://js.funnelbranch.com/funnelbranch.js?projectId=proj_abc123def';
+    (document.querySelector as jest.Mock).mockReturnValue(script);
+    // When
+    await loadScript();
+    // Then
+    expect(window.fetch).toHaveBeenCalled();
+    window.funnelbranch.destroy();
+  });
+
+  it('does not auto-initialize without a project ID in the query string', async () => {
+    // Given
+    const script = document.createElement('script');
+    script.src = 'https://js.funnelbranch.com/funnelbranch.js';
+    (document.querySelector as jest.Mock).mockReturnValue(script);
+    // When
+    await loadScript();
+    // Then
+    expect(window.fetch).not.toHaveBeenCalled();
   });
 
   it('fails initialization without a project ID', () => {

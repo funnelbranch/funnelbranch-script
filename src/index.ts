@@ -9,7 +9,7 @@ declare var COMMIT_HASH: string;
 
 // Types
 type Options = {
-  controlGroup?: string;
+  controlGroup?: 'A' | 'B';
   enableLocalhost?: boolean;
   trackClientUrlChanges?: boolean;
   trackClientHashChanges?: boolean;
@@ -44,7 +44,7 @@ class Funnelbranch {
     return COMMIT_HASH;
   }
 
-  public static initialize(projectId: string, options: Options): Funnelbranch | undefined {
+  public static initialize(projectId: string, options = {} as Options): Funnelbranch | undefined {
     if (this.INIT) {
       throw new Error('Funnelbranch: already initialized');
     }
@@ -99,9 +99,6 @@ class Funnelbranch {
   };
 
   private submitUrl = (location?: Location): void => {
-    if (!this.options.trackClientUrlChanges) {
-      console.log('Submitting', location);
-    }
     if (location) {
       const url = this.extractUrl(location);
       if (url) {
@@ -177,3 +174,14 @@ class Funnelbranch {
 }
 
 Object.assign(window, { Funnelbranch });
+
+// Auto-initialize
+const script = document.querySelector<HTMLScriptElement>('script[src^="https://js.funnelbranch.com/funnelbranch.js"]');
+if (script) {
+  const pattern = /projectId=([\w_-]+)/;
+  const match = pattern.exec(script.src);
+  if (match) {
+    const funnelbranch = Funnelbranch.initialize(match[1]);
+    Object.assign(window, { funnelbranch });
+  }
+}
