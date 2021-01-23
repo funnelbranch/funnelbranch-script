@@ -28,5 +28,6 @@ jobs:
       - name: 'Deploy to S3'
         run: yarn deploy
         env:
+          BUCKET: ${{ secrets.AWS_BUCKET }}
           AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}

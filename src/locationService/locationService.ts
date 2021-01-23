@@ -1,11 +1,11 @@
 // Config
-const PUSH_STATE_EVENT = 'funnelbranch_pushstate';
+const PUSH_STATE_EVENT = 'funnelbranch:pushstate';
 
 // Types
 type LocationCallback = (location: Location) => void;
 
 // Service
-export class HistoryService {
+export class LocationService {
   private static SETUP = false;
 
   private static setupPushStateEmitter(): void {
@@ -15,7 +15,7 @@ export class HistoryService {
     const original = window.history.pushState;
     window.history.pushState = function (...args) {
       const result = original.apply(this, args);
-      HistoryService.emitEvent(PUSH_STATE_EVENT);
+      LocationService.emitEvent(PUSH_STATE_EVENT);
       return result;
     };
   }
@@ -35,19 +35,8 @@ export class HistoryService {
     }
   }
 
-  private trackingCallback?: LocationCallback;
-  private events = [PUSH_STATE_EVENT, 'hashchange', 'popstate'];
-
-  public trackSpaUrls(trackingCallback: LocationCallback) {
-    if (!HistoryService.SETUP) {
-      HistoryService.setupPushStateEmitter();
-      HistoryService.SETUP = true;
-    }
-    this.trackingCallback = trackingCallback;
-    for (let index = 0, total = this.events.length; index < total; index++) {
-      window.addEventListener(this.events[index], this.notify);
-    }
-  }
+  private callback?: LocationCallback;
+  private events = [PUSH_STATE_EVENT, 'popstate', 'hashchange'];
 
   public getLocation = (): Location => {
     if (!('location' in window)) {
@@ -56,6 +45,17 @@ export class HistoryService {
     return window.location;
   };
 
+  public track(callback: LocationCallback) {
+    if (!LocationService.SETUP) {
+      LocationService.setupPushStateEmitter();
+      LocationService.SETUP = true;
+    }
+    this.callback = callback;
+    for (let index = 0, total = this.events.length; index < total; index++) {
+      window.addEventListener(this.events[index], this.notify);
+    }
+  }
+
   public destroy = (): void => {
     for (let index = 0, total = this.events.length; index < total; index++) {
       window.removeEventListener(this.events[index], this.notify);
@@ -63,8 +63,8 @@ export class HistoryService {
   };
 
   private notify = (): void => {
-    if (this.trackingCallback) {
-      this.trackingCallback(this.getLocation());
+    if (this.callback) {
+      this.callback(this.getLocation());
     }
   };
 }

@@ -6,9 +6,8 @@
   "scripts": {
     "build": "webpack --mode production",
     "test": "jest",
-    "test:watch": "jest --watch",
-    "deploy": "node deploy.js",
-    "serve": "concurrently -k \"serve build -l 5000\" \"ngrok http 5000 --subdomain funnelbranch\""
+    "west": "jest --watch",
+    "deploy": "node deploy.js"
   },
   "dependencies": {},
   "devDependencies": {
