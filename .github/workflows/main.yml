@@ -1,4 +1,10 @@
-on: push
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - '**'
 
 jobs:
   build-and-deploy:
@@ -26,8 +32,9 @@ jobs:
         run: yarn test
 
       - name: 'Deploy to S3'
+        if: ${{ github.ref == 'refs/heads/main' }}
         run: yarn deploy
         env:
-          BUCKET: ${{ secrets.AWS_BUCKET }}
+          AWS_BUCKET: ${{ secrets.AWS_BUCKET }}
           AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
