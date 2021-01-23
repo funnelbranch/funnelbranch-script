@@ -54,7 +54,7 @@ Initializing Funnelbranch this way will immediately:
 
 ## API
 
-Custom events can be submitted via the `submitEvent` method.
+Custom events can be submitted via the `submitEvent()` method.
 
 ```ts
 funnelbranch.submitEvent('<EVENT_NAME>');
