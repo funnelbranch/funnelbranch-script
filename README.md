@@ -1,6 +1,8 @@
 # Funnelbranch Script
 
-This is the official source code repository for the [`funnelbranch.js`](https://js.funnelbranch.com/funnelbranch.js) script. For more information, please visit [www.funnelbranch.com](https://www.funnelbranch.com).
+This is the official source code repository for the [`funnelbranch.js`](https://js.funnelbranch.com/funnelbranch.js) script.
+
+For more information, please visit [www.funnelbranch.com](https://www.funnelbranch.com).
 
 ## Zero Config Setup
 
