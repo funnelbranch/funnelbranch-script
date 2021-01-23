@@ -157,6 +157,7 @@ describe('funnelbranch.js', () => {
   it('immediately submits the current URL with "XMLHttpRequest" if "fetch" is unavailable', () => {
     // Given
     window.location.pathname = '/welcome';
+    // @ts-ignore
     delete window.fetch;
     // When
     funnelbranch = Funnelbranch.initialize('proj_123', { enableLocalhost: true });
