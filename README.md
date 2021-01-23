@@ -54,7 +54,7 @@ Initializing Funnelbranch this way will immediately:
 - submit the client's current URL
 - if configured, automatically track and submit client-side URL changes (for SPAs)
 
-## API
+## Instance API
 
 Custom events can be submitted via the `submitEvent()` method.
 
@@ -67,3 +67,7 @@ To stop tracking client-side URLs and cancel all browser API subscriptions, use 
 ```ts
 funnelbranch.destroy();
 ```
+
+## NPM
+
+Check out the official [Funnelbranch NPM Script Wrapper](https://github.com/funnelbranch/funnelbranch-npm) for using this script with SPA frameworks like React and Angular.
