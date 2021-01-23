@@ -171,9 +171,7 @@ describe('funnelbranch.js', () => {
           'Script-Version': expect.any(String),
         },
         body: expect.jsonStringContaining({
-          bot: false,
           projectId: 'proj_123',
-          visitorId: expect.any(String),
           trigger: { url: '/welcome' },
         }),
       })
@@ -189,7 +187,7 @@ describe('funnelbranch.js', () => {
     // @ts-ignore
     delete window.fetch;
     // When
-    funnelbranch = Funnelbranch.initialize('proj_123', { enableLocalhost: true });
+    funnelbranch = Funnelbranch.initialize('proj_123');
     // Then
     expect(window.XMLHttpRequest.open).toHaveBeenCalledTimes(1);
     expect(window.XMLHttpRequest.open).toHaveBeenCalledWith('POST', expect.any(String), true);
@@ -197,12 +195,23 @@ describe('funnelbranch.js', () => {
     expect(window.XMLHttpRequest.setRequestHeader).toHaveBeenNthCalledWith(2, 'Script-Version', expect.any(String));
     expect(window.XMLHttpRequest.send).toHaveBeenCalledWith(
       expect.jsonStringContaining({
-        bot: false,
         projectId: 'proj_123',
-        visitorId: expect.any(String),
         trigger: { url: '/welcome' },
       })
     );
+  });
+
+  it('logs an error when neither "fetch" nor "XMLHttpRequest" is available', () => {
+    // Given
+    window.location.pathname = '/welcome';
+    // @ts-ignore
+    delete window.fetch;
+    // @ts-ignore
+    delete window.XMLHttpRequest;
+    // When
+    funnelbranch = Funnelbranch.initialize('proj_123');
+    // Then
+    expect(console.error).toHaveBeenCalledWith(`Funnelbranch: neither 'fetch' nor 'XMLHttpRequest' available`);
   });
 
   it('submits the new location when tracking client side URLs (funnelbranch:pushstate)', () => {
@@ -216,7 +225,9 @@ describe('funnelbranch.js', () => {
     expect(window.fetch).toHaveBeenLastCalledWith(
       expect.any(String),
       expect.objectContaining({
-        body: expect.stringContaining('/pushstate/index.html'),
+        body: expect.jsonStringContaining({
+          trigger: { url: '/pushstate/index.html' },
+        }),
       })
     );
   });
@@ -232,7 +243,9 @@ describe('funnelbranch.js', () => {
     expect(window.fetch).toHaveBeenLastCalledWith(
       expect.any(String),
       expect.objectContaining({
-        body: expect.stringContaining('/popstate/index.html'),
+        body: expect.jsonStringContaining({
+          trigger: { url: '/popstate/index.html' },
+        }),
       })
     );
   });
@@ -248,7 +261,27 @@ describe('funnelbranch.js', () => {
     expect(window.fetch).toHaveBeenLastCalledWith(
       expect.any(String),
       expect.objectContaining({
-        body: expect.stringContaining('/hashchange/index.html'),
+        body: expect.jsonStringContaining({
+          trigger: { url: '/hashchange/index.html' },
+        }),
+      })
+    );
+  });
+
+  it('does not submit the same URL twice', () => {
+    // Given
+    window.location.pathname = '/pushstate/index.html';
+    funnelbranch = Funnelbranch.initialize('proj_123');
+    // When
+    window.dispatchEvent(new Event('funnelbranch:pushstate'));
+    // Then
+    expect(window.fetch).toHaveBeenCalledTimes(1);
+    expect(window.fetch).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        body: expect.jsonStringContaining({
+          trigger: { url: '/pushstate/index.html' },
+        }),
       })
     );
   });
@@ -264,7 +297,9 @@ describe('funnelbranch.js', () => {
     expect(window.fetch).not.toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({
-        body: expect.stringContaining('/pushstate/index.html'),
+        body: expect.jsonStringContaining({
+          trigger: { url: '/pushstate/index.html' },
+        }),
       })
     );
   });
@@ -283,7 +318,9 @@ describe('funnelbranch.js', () => {
     expect(window.fetch).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({
-        body: expect.stringContaining('/blog'),
+        body: expect.jsonStringContaining({
+          trigger: { url: '/blog' },
+        }),
       })
     );
   });
@@ -303,14 +340,18 @@ describe('funnelbranch.js', () => {
       1,
       expect.any(String),
       expect.objectContaining({
-        body: expect.stringContaining('/blog'),
+        body: expect.jsonStringContaining({
+          trigger: { url: '/blog' },
+        }),
       })
     );
     expect(window.fetch).toHaveBeenNthCalledWith(
       2,
       expect.any(String),
       expect.objectContaining({
-        body: expect.stringContaining('/blog#conclusion'),
+        body: expect.jsonStringContaining({
+          trigger: { url: '/blog#conclusion' },
+        }),
       })
     );
   });
@@ -328,7 +369,44 @@ describe('funnelbranch.js', () => {
     expect(window.fetch).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({
-        body: expect.stringContaining('/welcome'),
+        body: expect.jsonStringContaining({
+          trigger: { url: '/welcome' },
+        }),
+      })
+    );
+  });
+
+  it('submits an event', () => {
+    // Given
+    funnelbranch = Funnelbranch.initialize('proj_123');
+    // When
+    funnelbranch.submitEvent('REGISTRATION');
+    // Then
+    expect(window.fetch).toHaveBeenCalledTimes(2);
+    expect(window.fetch).toHaveBeenLastCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        body: expect.jsonStringContaining({
+          trigger: { event: 'REGISTRATION' },
+        }),
+      })
+    );
+  });
+
+  it('does not submit the same event twice', () => {
+    // Given
+    funnelbranch = Funnelbranch.initialize('proj_123');
+    // When
+    funnelbranch.submitEvent('REGISTRATION');
+    funnelbranch.submitEvent('REGISTRATION');
+    // Then
+    expect(window.fetch).toHaveBeenCalledTimes(2);
+    expect(window.fetch).toHaveBeenLastCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        body: expect.jsonStringContaining({
+          trigger: { event: 'REGISTRATION' },
+        }),
       })
     );
   });

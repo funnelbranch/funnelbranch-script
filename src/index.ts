@@ -1,11 +1,12 @@
 import { BotService } from './botService/botService';
 import { CookieService } from './cookieService/cookieService';
-import { LocationService } from './locationService/locationService';
 import { HttpService } from './httpService/httpService';
-import './polyfills/objectAssign';
+import { LocationService } from './locationService/locationService';
+import { deepEquals } from './utils/deepEquals';
+import './utils/objectAssignPolyfill';
 
 // Config
-declare var BUILD_COMMIT_HASH: string;
+declare const BUILD_COMMIT_HASH: string;
 
 // Types
 type Options = {
@@ -124,7 +125,7 @@ class Funnelbranch {
         event: request.event,
       },
     };
-    if (this.lastMatch && Funnelbranch.deepEquals(this.lastMatch, match)) {
+    if (this.lastMatch && deepEquals(this.lastMatch, match)) {
       return; // Doesn't make sense for us to submit the same match twice
     }
     this.lastMatch = HttpService.post(this.options.__apiEndpoint!, match, this.options.__extraHeaders);
@@ -146,31 +147,6 @@ class Funnelbranch {
     }
     return visitorId;
   };
-
-  private static deepEquals(obj1: any, obj2: any): boolean {
-    if (obj1 === obj2) {
-      return true;
-    }
-    if (this.isPrimitive(obj1) && this.isPrimitive(obj2)) {
-      return obj1 === obj2;
-    }
-    if (Object.keys(obj1).length !== Object.keys(obj2).length) {
-      return false;
-    }
-    for (let key in obj1) {
-      if (!(key in obj2)) {
-        return false;
-      }
-      if (!this.deepEquals(obj1[key], obj2[key])) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  private static isPrimitive(obj: any) {
-    return obj !== Object(obj);
-  }
 }
 
 Object.assign(window, { Funnelbranch });

@@ -1,5 +1,5 @@
 // Config
-declare var BUILD_COMMIT_HASH: string;
+declare const BUILD_COMMIT_HASH: string;
 
 // Service
 export class HttpService {
@@ -23,6 +23,6 @@ export class HttpService {
       xhr.send(body);
       return request;
     }
-    console.error(`Funnelbranch: 'fetch' and 'XMLHttpRequest' both unavailable`);
+    console.error(`Funnelbranch: neither 'fetch' nor 'XMLHttpRequest' available`);
   }
 }
