@@ -15,7 +15,7 @@ This will auto-initialize a Funnelbranch instance and immediately:
 - submit the client's current URL
 - automatically track and submit client-side URL changes (for SPAs)
 
-Additionally, this will make the `Funnelbranch` class and the auto-initialized `funnelbranch` instance available on the global `window` object.
+Additionally, this will make the `Funnelbranch` class variable and the auto-initialized `funnelbranch` instance variable available on the global `window` object.
 
 ## Manual Setup
 
@@ -25,6 +25,7 @@ Include the same script onto your HTML pages, but omit the `projectId` query par
 <script src="https://js.funnelbranch.com/funnelbranch.js"></script>
 ```
 
+This will make the `Funnelbranch` class variable available on the global `window` object.
 The following code sample then shows how to manually initialize a Funnelbranch instance.
 
 ```ts
