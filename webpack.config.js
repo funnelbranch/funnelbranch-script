@@ -14,7 +14,7 @@ module.exports = {
     ],
   },
   resolve: {
-    extensions: ['.ts', '.js'],
+    extensions: ['.ts'],
   },
   output: {
     filename: 'funnelbranch.js',
@@ -26,13 +26,13 @@ module.exports = {
   },
   plugins: [
     new DefinePlugin({
-      COMMIT_HASH: JSON.stringify(commitHash()),
+      BUILD_COMMIT_HASH: JSON.stringify(commitHash()),
     }),
   ],
 };
 
 function commitHash() {
-  let hash = process.env.COMMIT_HASH;
+  let hash = process.env.BUILD_COMMIT_HASH;
   if (!hash) {
     hash = execSync('git rev-parse HEAD', { encoding: 'utf-8' }).toString();
   }

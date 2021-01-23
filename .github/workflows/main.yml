@@ -26,7 +26,7 @@ jobs:
       - name: 'Build'
         run: yarn build
         env:
-          COMMIT_HASH: ${{ github.sha }}
+          BUILD_COMMIT_HASH: ${{ github.sha }}
 
       - name: 'Test'
         run: yarn test

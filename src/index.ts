@@ -5,7 +5,7 @@ import { HttpService } from './httpService/httpService';
 import './polyfills/objectAssign';
 
 // Config
-declare var COMMIT_HASH: string;
+declare var BUILD_COMMIT_HASH: string;
 
 // Types
 type Options = {
@@ -41,7 +41,7 @@ class Funnelbranch {
   };
 
   public static scriptVersion(): string {
-    return COMMIT_HASH;
+    return BUILD_COMMIT_HASH;
   }
 
   public static initialize(projectId: string, options = {} as Options): Funnelbranch | undefined {
