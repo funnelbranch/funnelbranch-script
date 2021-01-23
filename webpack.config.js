@@ -36,5 +36,5 @@ function commitHash() {
   if (!hash) {
     hash = execSync('git rev-parse HEAD', { encoding: 'utf-8' }).toString();
   }
-  return hash.substring(0, 6);
+  return hash.substring(0, 7);
 }
