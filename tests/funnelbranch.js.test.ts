@@ -81,7 +81,7 @@ describe('funnelbranch.js', () => {
     // When
     const version = Funnelbranch.scriptVersion();
     // Then
-    expect(version).toHaveLength(6);
+    expect(version).toHaveLength(7);
   });
 
   it('initializes', () => {
