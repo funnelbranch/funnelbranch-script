@@ -6,7 +6,7 @@ For more information, please visit [www.funnelbranch.com](https://www.funnelbran
 
 ## Zero Config Setup
 
-Include the following script onto your HTML pages.
+Include the following script on your HTML pages after substituting the `<PROJECT_ID>` placeholder.
 
 ```html
 <script src="https://js.funnelbranch.com/funnelbranch.js?projectId=<PROJECT_ID>"></script>
@@ -21,7 +21,7 @@ Additionally, this will make the `Funnelbranch` class variable and the auto-init
 
 ## Manual Setup
 
-Include the same script onto your HTML pages, but omit the `projectId` query parameter.
+Include the same script on your HTML pages, but omit the `projectId` query parameter.
 
 ```html
 <script src="https://js.funnelbranch.com/funnelbranch.js"></script>
@@ -70,4 +70,4 @@ funnelbranch.destroy();
 
 ## NPM
 
-Check out the official [Funnelbranch NPM Script Wrapper](https://github.com/funnelbranch/funnelbranch-npm) for using this script with SPA frameworks like React and Angular.
+Check out the official [NPM Script Wrapper](https://github.com/funnelbranch/funnelbranch-script-npm) for using this script with SPA frameworks like React and Angular.
