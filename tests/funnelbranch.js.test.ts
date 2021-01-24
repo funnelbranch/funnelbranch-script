@@ -121,11 +121,29 @@ describe('funnelbranch.js', () => {
     expect(attempt).toThrowError('Funnelbranch: missing project ID');
   });
 
-  it('fails a second initialization', () => {
+  it('initializes a second time idempotently for the same configuration', () => {
+    // Given
+    funnelbranch = Funnelbranch.initialize('proj_123', { enableLocalhost: true, trackClientHashChanges: true });
+    // When
+    const funnelbranch2 = Funnelbranch.initialize('proj_123', { enableLocalhost: true, trackClientHashChanges: true });
+    // Then
+    expect(funnelbranch).toBe(funnelbranch2);
+  });
+
+  it('fails a second initialization (if a different project ID is used)', () => {
     // Given
     funnelbranch = Funnelbranch.initialize('proj_123');
     // When
-    const attempt = () => Funnelbranch.initialize();
+    const attempt = () => Funnelbranch.initialize('proj_456');
+    // Then
+    expect(attempt).toThrowError('Funnelbranch: already initialized');
+  });
+
+  it('fails a second initialization (if different options are used)', () => {
+    // Given
+    funnelbranch = Funnelbranch.initialize('proj_123', { trackClientUrlChanges: true });
+    // When
+    const attempt = () => Funnelbranch.initialize('proj_123', { trackClientUrlChanges: false });
     // Then
     expect(attempt).toThrowError('Funnelbranch: already initialized');
   });

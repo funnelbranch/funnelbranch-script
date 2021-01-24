@@ -30,7 +30,7 @@ type SubmitMatchRequest = {
 
 // Main class
 class Funnelbranch {
-  private static INIT = false;
+  private static INST?: Funnelbranch;
 
   private static DEFAULT_OPTIONS: Options = {
     controlGroup: undefined,
@@ -46,9 +46,6 @@ class Funnelbranch {
   }
 
   public static initialize(projectId: string, options = {} as Options): Funnelbranch | undefined {
-    if (this.INIT) {
-      throw new Error('Funnelbranch: already initialized');
-    }
     if (!projectId) {
       throw new Error('Funnelbranch: missing project ID');
     }
@@ -56,9 +53,14 @@ class Funnelbranch {
     if (!finalOptions.__apiEndpoint) {
       throw new Error('Funnelbranch: missing API endpoint');
     }
-    const instance = new Funnelbranch(projectId, finalOptions);
-    this.INIT = true;
-    return instance;
+    if (this.INST) {
+      if (this.INST.projectId === projectId && deepEquals(this.INST.options, finalOptions)) {
+        return this.INST;
+      }
+      throw new Error('Funnelbranch: already initialized');
+    }
+    this.INST = new Funnelbranch(projectId, finalOptions);
+    return this.INST;
   }
 
   private botService: BotService;
@@ -88,9 +90,9 @@ class Funnelbranch {
   }
 
   public destroy = (): void => {
-    this.locationService.destroy();
     this.destroyed = true;
-    Funnelbranch.INIT = false;
+    this.locationService.destroy();
+    Funnelbranch.INST = undefined;
   };
 
   public submitEvent = (event?: string): void => {
