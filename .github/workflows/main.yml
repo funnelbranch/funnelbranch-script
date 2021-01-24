@@ -33,7 +33,7 @@ jobs:
 
       - name: 'Deploy to S3'
         if: ${{ github.ref == 'refs/heads/main' }}
-        run: cli-deploy.js
+        run: ./cli-deploy.js
         env:
           AWS_BUCKET: ${{ secrets.AWS_BUCKET }}
           AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
