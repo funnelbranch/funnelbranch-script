@@ -6,8 +6,7 @@
   "scripts": {
     "build": "webpack --mode production",
     "test": "jest",
-    "west": "jest --watchAll",
-    "deploy": "node deploy.js"
+    "west": "jest --watchAll"
   },
   "dependencies": {},
   "devDependencies": {

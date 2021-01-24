@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const AWS = require('aws-sdk');
 const fsp = require('fs').promises;
 const path = require('path');
