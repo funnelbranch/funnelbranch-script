@@ -1,4 +1,4 @@
-const VISITOR_COOKIE = 'funnelbranch_visitor';
+const VISITOR_COOKIE = 'funnelbranch:visitor';
 const VISITOR_COOKIE_AGE = 24 * 60 * 60;
 
 export class CookieService {
