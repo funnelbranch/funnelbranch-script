@@ -47,7 +47,6 @@ describe('funnelbranch.js', () => {
     // @ts-ignore
     delete window.location;
     window.location = { pathname: '/' } as any;
-    window.fetch = jest.fn().mockName('fetch').mockReset();
     class MockXMLHttpRequest {
       static __OPEN = jest.fn().mockReset();
       static __SET_REQUEST_HEADER = jest.fn().mockReset();
@@ -99,7 +98,7 @@ describe('funnelbranch.js', () => {
     // When
     await loadScript();
     // Then
-    expect(window.fetch).toHaveBeenCalled();
+    expect(window.XMLHttpRequest.send).toHaveBeenCalledTimes(1);
     window.funnelbranch.destroy();
   });
 
@@ -111,7 +110,7 @@ describe('funnelbranch.js', () => {
     // When
     await loadScript();
     // Then
-    expect(window.fetch).not.toHaveBeenCalled();
+    expect(window.XMLHttpRequest.send).not.toHaveBeenCalled();
   });
 
   it('fails initialization without a project ID', () => {
@@ -173,37 +172,9 @@ describe('funnelbranch.js', () => {
     expect(console.warn).not.toHaveBeenCalledWith('Funnelbranch: disabled on localhost');
   });
 
-  it('immediately submits the current URL with "fetch" if available', () => {
+  it('immediately submits the current URL with "XMLHttpRequest" if available', () => {
     // Given
     window.location.pathname = '/welcome';
-    // When
-    funnelbranch = Funnelbranch.initialize('proj_123');
-    // Then
-    expect(window.fetch).toHaveBeenCalledTimes(1);
-    expect(window.fetch).toHaveBeenCalledWith(
-      'https://api.funnelbranch.com/m',
-      expect.objectContaining({
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Script-Version': expect.any(String),
-        },
-        body: expect.jsonStringContaining({
-          projectId: 'proj_123',
-          trigger: { url: '/welcome' },
-        }),
-      })
-    );
-    expect(window.XMLHttpRequest.open).not.toHaveBeenCalled();
-    expect(window.XMLHttpRequest.setRequestHeader).not.toHaveBeenCalled();
-    expect(window.XMLHttpRequest.send).not.toHaveBeenCalled();
-  });
-
-  it('immediately submits the current URL with "XMLHttpRequest" if "fetch" is unavailable', () => {
-    // Given
-    window.location.pathname = '/welcome';
-    // @ts-ignore
-    delete window.fetch;
     // When
     funnelbranch = Funnelbranch.initialize('proj_123');
     // Then
@@ -219,17 +190,15 @@ describe('funnelbranch.js', () => {
     );
   });
 
-  it('logs an error when neither "fetch" nor "XMLHttpRequest" is available', () => {
+  it('logs an error when "XMLHttpRequest" is unavailable', () => {
     // Given
     window.location.pathname = '/welcome';
-    // @ts-ignore
-    delete window.fetch;
     // @ts-ignore
     delete window.XMLHttpRequest;
     // When
     funnelbranch = Funnelbranch.initialize('proj_123');
     // Then
-    expect(console.error).toHaveBeenCalledWith(`Funnelbranch: neither 'fetch' nor 'XMLHttpRequest' available`);
+    expect(console.error).toHaveBeenCalledWith(`Funnelbranch: 'XMLHttpRequest' unavailable`);
   });
 
   it('submits the new location when tracking client side URLs (funnelbranch:pushstate)', () => {
@@ -239,13 +208,10 @@ describe('funnelbranch.js', () => {
     window.location.pathname = '/pushstate/index.html';
     window.dispatchEvent(new Event('funnelbranch:pushstate'));
     // Then
-    expect(window.fetch).toHaveBeenCalledTimes(2);
-    expect(window.fetch).toHaveBeenLastCalledWith(
-      expect.any(String),
-      expect.objectContaining({
-        body: expect.jsonStringContaining({
-          trigger: { url: '/pushstate/index.html' },
-        }),
+    expect(window.XMLHttpRequest.send).toHaveBeenCalledTimes(2);
+    expect(window.XMLHttpRequest.send).toHaveBeenLastCalledWith(
+      expect.jsonStringContaining({
+        trigger: { url: '/pushstate/index.html' },
       })
     );
   });
@@ -257,13 +223,10 @@ describe('funnelbranch.js', () => {
     window.location.pathname = '/popstate/index.html';
     window.dispatchEvent(new Event('popstate'));
     // Then
-    expect(window.fetch).toHaveBeenCalledTimes(2);
-    expect(window.fetch).toHaveBeenLastCalledWith(
-      expect.any(String),
-      expect.objectContaining({
-        body: expect.jsonStringContaining({
-          trigger: { url: '/popstate/index.html' },
-        }),
+    expect(window.XMLHttpRequest.send).toHaveBeenCalledTimes(2);
+    expect(window.XMLHttpRequest.send).toHaveBeenLastCalledWith(
+      expect.jsonStringContaining({
+        trigger: { url: '/popstate/index.html' },
       })
     );
   });
@@ -275,13 +238,10 @@ describe('funnelbranch.js', () => {
     window.location.pathname = '/hashchange/index.html';
     window.dispatchEvent(new Event('hashchange'));
     // Then
-    expect(window.fetch).toHaveBeenCalledTimes(2);
-    expect(window.fetch).toHaveBeenLastCalledWith(
-      expect.any(String),
-      expect.objectContaining({
-        body: expect.jsonStringContaining({
-          trigger: { url: '/hashchange/index.html' },
-        }),
+    expect(window.XMLHttpRequest.send).toHaveBeenCalledTimes(2);
+    expect(window.XMLHttpRequest.send).toHaveBeenLastCalledWith(
+      expect.jsonStringContaining({
+        trigger: { url: '/hashchange/index.html' },
       })
     );
   });
@@ -293,13 +253,10 @@ describe('funnelbranch.js', () => {
     // When
     window.dispatchEvent(new Event('funnelbranch:pushstate'));
     // Then
-    expect(window.fetch).toHaveBeenCalledTimes(1);
-    expect(window.fetch).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.objectContaining({
-        body: expect.jsonStringContaining({
-          trigger: { url: '/pushstate/index.html' },
-        }),
+    expect(window.XMLHttpRequest.send).toHaveBeenCalledTimes(1);
+    expect(window.XMLHttpRequest.send).toHaveBeenCalledWith(
+      expect.jsonStringContaining({
+        trigger: { url: '/pushstate/index.html' },
       })
     );
   });
@@ -311,13 +268,10 @@ describe('funnelbranch.js', () => {
     window.location.pathname = '/pushstate/index.html';
     window.dispatchEvent(new Event('funnelbranch:pushstate'));
     // Then
-    expect(window.fetch).toHaveBeenCalledTimes(1);
-    expect(window.fetch).not.toHaveBeenCalledWith(
-      expect.any(String),
-      expect.objectContaining({
-        body: expect.jsonStringContaining({
-          trigger: { url: '/pushstate/index.html' },
-        }),
+    expect(window.XMLHttpRequest.send).toHaveBeenCalledTimes(1);
+    expect(window.XMLHttpRequest.send).not.toHaveBeenCalledWith(
+      expect.jsonStringContaining({
+        trigger: { url: '/pushstate/index.html' },
       })
     );
   });
@@ -332,13 +286,10 @@ describe('funnelbranch.js', () => {
     window.location.hash = '#conclusion';
     window.dispatchEvent(new Event('hashchange'));
     // Then
-    expect(window.fetch).toHaveBeenCalledTimes(1);
-    expect(window.fetch).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.objectContaining({
-        body: expect.jsonStringContaining({
-          trigger: { url: '/blog' },
-        }),
+    expect(window.XMLHttpRequest.send).toHaveBeenCalledTimes(1);
+    expect(window.XMLHttpRequest.send).toHaveBeenCalledWith(
+      expect.jsonStringContaining({
+        trigger: { url: '/blog' },
       })
     );
   });
@@ -353,23 +304,17 @@ describe('funnelbranch.js', () => {
     window.location.hash = '#conclusion';
     window.dispatchEvent(new Event('hashchange'));
     // Then
-    expect(window.fetch).toHaveBeenCalledTimes(2);
-    expect(window.fetch).toHaveBeenNthCalledWith(
+    expect(window.XMLHttpRequest.send).toHaveBeenCalledTimes(2);
+    expect(window.XMLHttpRequest.send).toHaveBeenNthCalledWith(
       1,
-      expect.any(String),
-      expect.objectContaining({
-        body: expect.jsonStringContaining({
-          trigger: { url: '/blog' },
-        }),
+      expect.jsonStringContaining({
+        trigger: { url: '/blog' },
       })
     );
-    expect(window.fetch).toHaveBeenNthCalledWith(
+    expect(window.XMLHttpRequest.send).toHaveBeenNthCalledWith(
       2,
-      expect.any(String),
-      expect.objectContaining({
-        body: expect.jsonStringContaining({
-          trigger: { url: '/blog#conclusion' },
-        }),
+      expect.jsonStringContaining({
+        trigger: { url: '/blog#conclusion' },
       })
     );
   });
@@ -383,13 +328,10 @@ describe('funnelbranch.js', () => {
     window.location.pathname = '/popstate/index.html';
     window.dispatchEvent(new Event('popstate'));
     // Then
-    expect(window.fetch).toHaveBeenCalledTimes(1);
-    expect(window.fetch).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.objectContaining({
-        body: expect.jsonStringContaining({
-          trigger: { url: '/welcome' },
-        }),
+    expect(window.XMLHttpRequest.send).toHaveBeenCalledTimes(1);
+    expect(window.XMLHttpRequest.send).toHaveBeenCalledWith(
+      expect.jsonStringContaining({
+        trigger: { url: '/welcome' },
       })
     );
   });
@@ -400,13 +342,10 @@ describe('funnelbranch.js', () => {
     // When
     funnelbranch.submitEvent('REGISTRATION');
     // Then
-    expect(window.fetch).toHaveBeenCalledTimes(2);
-    expect(window.fetch).toHaveBeenLastCalledWith(
-      expect.any(String),
-      expect.objectContaining({
-        body: expect.jsonStringContaining({
-          trigger: { event: 'REGISTRATION' },
-        }),
+    expect(window.XMLHttpRequest.send).toHaveBeenCalledTimes(2);
+    expect(window.XMLHttpRequest.send).toHaveBeenLastCalledWith(
+      expect.jsonStringContaining({
+        trigger: { event: 'REGISTRATION' },
       })
     );
   });
@@ -418,13 +357,10 @@ describe('funnelbranch.js', () => {
     funnelbranch.submitEvent('REGISTRATION');
     funnelbranch.submitEvent('REGISTRATION');
     // Then
-    expect(window.fetch).toHaveBeenCalledTimes(2);
-    expect(window.fetch).toHaveBeenLastCalledWith(
-      expect.any(String),
-      expect.objectContaining({
-        body: expect.jsonStringContaining({
-          trigger: { event: 'REGISTRATION' },
-        }),
+    expect(window.XMLHttpRequest.send).toHaveBeenCalledTimes(2);
+    expect(window.XMLHttpRequest.send).toHaveBeenLastCalledWith(
+      expect.jsonStringContaining({
+        trigger: { event: 'REGISTRATION' },
       })
     );
   });
