@@ -17,14 +17,19 @@ type Options = {
   __apiEndpoint?: string;
   __extraHeaders?: Record<string, string>;
 };
+enum TriggerType {
+  url_visit = 'url_visit',
+  action = 'action',
+}
 type SubmitMatchRequest = {
   projectId: string;
   visitorId: string;
   controlGroup?: string;
   bot: boolean;
+  triggerType: TriggerType;
   trigger: {
     url?: string;
-    event?: string;
+    action?: string;
   };
 };
 
@@ -95,9 +100,9 @@ class Funnelbranch {
     Funnelbranch.INST = undefined;
   };
 
-  public submitEvent = (event?: string): void => {
-    if (event) {
-      this.submitMatch({ event });
+  public submitAction = (action?: string): void => {
+    if (action) {
+      this.submitMatch({ triggerType: TriggerType.action, action });
     }
   };
 
@@ -105,12 +110,12 @@ class Funnelbranch {
     if (location) {
       const url = this.extractUrl(location);
       if (url) {
-        this.submitMatch({ url });
+        this.submitMatch({ triggerType: TriggerType.url_visit, url });
       }
     }
   };
 
-  private submitMatch = (request: { url?: string; event?: string }): void => {
+  private submitMatch = (request: { triggerType: TriggerType; url?: string; action?: string }): void => {
     if (this.destroyed) {
       return;
     }
@@ -122,9 +127,10 @@ class Funnelbranch {
       controlGroup: this.options.controlGroup,
       visitorId: this.getVisitorId(),
       bot: this.botService.isBot(),
+      triggerType: request.triggerType,
       trigger: {
         url: request.url,
-        event: request.event,
+        action: request.action,
       },
     };
     if (this.lastMatch && deepEquals(this.lastMatch, match)) {

@@ -56,10 +56,10 @@ Initializing Funnelbranch this way will immediately:
 
 ## Instance API
 
-Custom events can be submitted via the `submitEvent()` method.
+Custom actions can be submitted via the `submitAction()` method.
 
 ```ts
-funnelbranch.submitEvent('<EVENT_NAME>');
+funnelbranch.submitAction('<ACTION_NAME>');
 ```
 
 To stop tracking client-side URLs and cancel all browser API subscriptions, use the `destroy()` method.

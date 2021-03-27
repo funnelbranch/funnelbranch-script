@@ -185,6 +185,7 @@ describe('funnelbranch.js', () => {
     expect(window.XMLHttpRequest.send).toHaveBeenCalledWith(
       expect.jsonStringContaining({
         projectId: 'proj_123',
+        triggerType: 'url_visit',
         trigger: { url: '/welcome' },
       })
     );
@@ -211,6 +212,7 @@ describe('funnelbranch.js', () => {
     expect(window.XMLHttpRequest.send).toHaveBeenCalledTimes(2);
     expect(window.XMLHttpRequest.send).toHaveBeenLastCalledWith(
       expect.jsonStringContaining({
+        triggerType: 'url_visit',
         trigger: { url: '/pushstate/index.html' },
       })
     );
@@ -226,6 +228,7 @@ describe('funnelbranch.js', () => {
     expect(window.XMLHttpRequest.send).toHaveBeenCalledTimes(2);
     expect(window.XMLHttpRequest.send).toHaveBeenLastCalledWith(
       expect.jsonStringContaining({
+        triggerType: 'url_visit',
         trigger: { url: '/popstate/index.html' },
       })
     );
@@ -241,6 +244,7 @@ describe('funnelbranch.js', () => {
     expect(window.XMLHttpRequest.send).toHaveBeenCalledTimes(2);
     expect(window.XMLHttpRequest.send).toHaveBeenLastCalledWith(
       expect.jsonStringContaining({
+        triggerType: 'url_visit',
         trigger: { url: '/hashchange/index.html' },
       })
     );
@@ -256,6 +260,7 @@ describe('funnelbranch.js', () => {
     expect(window.XMLHttpRequest.send).toHaveBeenCalledTimes(1);
     expect(window.XMLHttpRequest.send).toHaveBeenCalledWith(
       expect.jsonStringContaining({
+        triggerType: 'url_visit',
         trigger: { url: '/pushstate/index.html' },
       })
     );
@@ -271,6 +276,7 @@ describe('funnelbranch.js', () => {
     expect(window.XMLHttpRequest.send).toHaveBeenCalledTimes(1);
     expect(window.XMLHttpRequest.send).not.toHaveBeenCalledWith(
       expect.jsonStringContaining({
+        triggerType: 'url_visit',
         trigger: { url: '/pushstate/index.html' },
       })
     );
@@ -289,6 +295,7 @@ describe('funnelbranch.js', () => {
     expect(window.XMLHttpRequest.send).toHaveBeenCalledTimes(1);
     expect(window.XMLHttpRequest.send).toHaveBeenCalledWith(
       expect.jsonStringContaining({
+        triggerType: 'url_visit',
         trigger: { url: '/blog' },
       })
     );
@@ -308,12 +315,14 @@ describe('funnelbranch.js', () => {
     expect(window.XMLHttpRequest.send).toHaveBeenNthCalledWith(
       1,
       expect.jsonStringContaining({
+        triggerType: 'url_visit',
         trigger: { url: '/blog' },
       })
     );
     expect(window.XMLHttpRequest.send).toHaveBeenNthCalledWith(
       2,
       expect.jsonStringContaining({
+        triggerType: 'url_visit',
         trigger: { url: '/blog#conclusion' },
       })
     );
@@ -331,36 +340,39 @@ describe('funnelbranch.js', () => {
     expect(window.XMLHttpRequest.send).toHaveBeenCalledTimes(1);
     expect(window.XMLHttpRequest.send).toHaveBeenCalledWith(
       expect.jsonStringContaining({
+        triggerType: 'url_visit',
         trigger: { url: '/welcome' },
       })
     );
   });
 
-  it('submits an event', () => {
+  it('submits an action', () => {
     // Given
     funnelbranch = Funnelbranch.initialize('proj_123');
     // When
-    funnelbranch.submitEvent('REGISTRATION');
+    funnelbranch.submitAction('REGISTRATION');
     // Then
     expect(window.XMLHttpRequest.send).toHaveBeenCalledTimes(2);
     expect(window.XMLHttpRequest.send).toHaveBeenLastCalledWith(
       expect.jsonStringContaining({
-        trigger: { event: 'REGISTRATION' },
+        triggerType: 'action',
+        trigger: { action: 'REGISTRATION' },
       })
     );
   });
 
-  it('does not submit the same event twice', () => {
+  it('does not submit the same action twice', () => {
     // Given
     funnelbranch = Funnelbranch.initialize('proj_123');
     // When
-    funnelbranch.submitEvent('REGISTRATION');
-    funnelbranch.submitEvent('REGISTRATION');
+    funnelbranch.submitAction('REGISTRATION');
+    funnelbranch.submitAction('REGISTRATION');
     // Then
     expect(window.XMLHttpRequest.send).toHaveBeenCalledTimes(2);
     expect(window.XMLHttpRequest.send).toHaveBeenLastCalledWith(
       expect.jsonStringContaining({
-        trigger: { event: 'REGISTRATION' },
+        triggerType: 'action',
+        trigger: { action: 'REGISTRATION' },
       })
     );
   });
