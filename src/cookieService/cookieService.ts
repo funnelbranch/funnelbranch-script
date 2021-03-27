@@ -1,8 +1,8 @@
 const VISITOR_COOKIE = 'funnelbranch:visitor';
-const VISITOR_COOKIE_AGE = 24 * 60 * 60;
+const VISITOR_COOKIE_AGE = 3 * 24 * 60 * 60; // Three days
 
 export class CookieService {
-  public setVisitor(value: string) {
+  public extendVisitor(value: string) {
     document.cookie = `${VISITOR_COOKIE}=${value};max-age=${VISITOR_COOKIE_AGE};path=/`;
   }
 

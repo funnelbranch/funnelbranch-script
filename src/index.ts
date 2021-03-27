@@ -125,7 +125,7 @@ class Funnelbranch {
     const match: SubmitMatchRequest = {
       projectId: this.projectId,
       controlGroup: this.options.controlGroup,
-      visitorId: this.getVisitorId(),
+      visitorId: this.getAndExtendVisitorId(),
       bot: this.botService.isBot(),
       triggerType: request.triggerType,
       trigger: {
@@ -147,12 +147,14 @@ class Funnelbranch {
     return result;
   };
 
-  private getVisitorId = (): string => {
-    let visitorId = this.cookieService.getVisitor();
-    if (!visitorId) {
-      visitorId = `vis_${Math.random().toFixed(17).slice(2)}`;
-      this.cookieService.setVisitor(visitorId);
-    }
+  /**
+   * Either gets and extends the current visitor ID, or generates a new one
+   *
+   * @returns the visitor ID
+   */
+  private getAndExtendVisitorId = (): string => {
+    const visitorId = this.cookieService.getVisitor() || `vis_${Math.random().toFixed(17).slice(2)}`;
+    this.cookieService.extendVisitor(visitorId);
     return visitorId;
   };
 }

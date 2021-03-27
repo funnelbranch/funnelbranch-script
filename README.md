@@ -70,4 +70,4 @@ funnelbranch.destroy();
 
 ## NPM
 
-Check out the official [NPM Script Wrapper](https://github.com/funnelbranch/funnelbranch-script-npm) for using this script with SPA frameworks like React and Angular.
+Check out the official [Funnelbranch Script Wrapper](https://github.com/funnelbranch/funnelbranch-script-npm) module for using this script with SPA frameworks like React and Angular.
