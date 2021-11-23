@@ -5,7 +5,11 @@ export class CookieService {
   constructor(private readonly cookieDomain?: string) {}
 
   public extendVisitor(value: string) {
-    document.cookie = `${VISITOR_COOKIE}=${value};max-age=${VISITOR_COOKIE_AGE};path=/${this.cookieDomain || ''}`;
+    let cookie = `${VISITOR_COOKIE}=${value};max-age=${VISITOR_COOKIE_AGE};path=/`;
+    if (this.cookieDomain) {
+      cookie += `;domain=${this.cookieDomain}`;
+    }
+    document.cookie = cookie;
   }
 
   public getVisitor() {
