@@ -35,6 +35,9 @@ type Options = {
   controlGroup?: 'A' | 'B';
   // Default: undefined
 
+  cookieDomain?: string;
+  // Default: current domain
+
   enableLocalhost?: boolean;
   // Default: false
 

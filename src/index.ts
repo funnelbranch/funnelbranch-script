@@ -11,6 +11,7 @@ declare const BUILD_COMMIT_HASH: string;
 // Types
 type Options = {
   controlGroup?: 'A' | 'B';
+  cookieDomain?: string;
   enableLocalhost?: boolean;
   trackClientUrlChanges?: boolean;
   trackClientHashChanges?: boolean;
@@ -39,6 +40,7 @@ class Funnelbranch {
 
   private static DEFAULT_OPTIONS: Options = {
     controlGroup: undefined,
+    cookieDomain: undefined,
     enableLocalhost: false,
     trackClientUrlChanges: true,
     trackClientHashChanges: false,
@@ -79,7 +81,7 @@ class Funnelbranch {
   private constructor(private readonly projectId: string, private readonly options: Options) {
     // Services
     this.botService = new BotService();
-    this.cookieService = new CookieService();
+    this.cookieService = new CookieService(options.cookieDomain);
     this.locationService = new LocationService();
     // Variables
     this.destroyed = false;
