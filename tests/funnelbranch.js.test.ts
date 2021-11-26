@@ -22,6 +22,8 @@ declare global {
 }
 
 describe('funnelbranch.js', () => {
+  const SCRIPT_URL = `https://js.funnelbranch.com/funnelbranch.js`;
+
   /**
    * The variable below represents "window.Funnelbranch"
    *
@@ -34,12 +36,18 @@ describe('funnelbranch.js', () => {
   let Funnelbranch: any;
   let funnelbranch: any;
 
+  function mockScriptTag(src: string) {
+    const script = document.createElement('script');
+    script.src = src;
+    (document.querySelector as jest.Mock).mockReturnValue(script);
+  }
+
   async function loadScript() {
     const funnelbranchJs = path.join(__dirname, '..', 'build', 'funnelbranch.js');
     const javascript = await fs.promises.readFile(funnelbranchJs, 'utf-8');
     eval(javascript);
     Funnelbranch = window.Funnelbranch;
-    funnelbranch = undefined;
+    funnelbranch = window.funnelbranch;
   }
 
   beforeEach(async (done) => {
@@ -92,21 +100,44 @@ describe('funnelbranch.js', () => {
 
   it('auto-initializes with a project ID in the query string', async () => {
     // Given
-    const script = document.createElement('script');
-    script.src = 'https://js.funnelbranch.com/funnelbranch.js?projectId=proj_abc123def';
-    (document.querySelector as jest.Mock).mockReturnValue(script);
+    mockScriptTag(`${SCRIPT_URL}?projectId=proj_abc123def`);
     // When
     await loadScript();
     // Then
     expect(window.XMLHttpRequest.send).toHaveBeenCalledTimes(1);
-    window.funnelbranch.destroy();
+    funnelbranch.destroy();
+  });
+
+  it('auto-initializes with other options in the query string', async () => {
+    // Given
+    const options = [
+      'projectId=proj_abc123def',
+      'controlGroup=A',
+      'cookieDomain=.funnelbranch.com',
+      'enableLocalhost=true',
+      'trackClientUrlChanges=false',
+      'trackClientHashChanges=true',
+    ];
+    mockScriptTag(`${SCRIPT_URL}?${options.join('&')}`);
+    // When
+    await loadScript();
+    // Then
+    expect(funnelbranch.options).toEqual(
+      jasmine.objectContaining({
+        projectId: 'proj_abc123def',
+        controlGroup: 'A',
+        cookieDomain: '.funnelbranch.com',
+        enableLocalhost: true,
+        trackClientUrlChanges: false,
+        trackClientHashChanges: true,
+      })
+    );
+    funnelbranch.destroy();
   });
 
   it('does not auto-initialize without a project ID in the query string', async () => {
     // Given
-    const script = document.createElement('script');
-    script.src = 'https://js.funnelbranch.com/funnelbranch.js';
-    (document.querySelector as jest.Mock).mockReturnValue(script);
+    mockScriptTag(`${SCRIPT_URL}?cookieDomain`);
     // When
     await loadScript();
     // Then

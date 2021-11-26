@@ -22,7 +22,7 @@ module.exports = {
   },
   performance: {
     hints: 'error',
-    maxAssetSize: 5 * 1024, // 5kB
+    maxAssetSize: 6 * 1024, // 5kB
   },
   plugins: [
     new DefinePlugin({

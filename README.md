@@ -4,58 +4,51 @@ This is the official source code repository for the [`funnelbranch.js`](https://
 
 For more information, please visit [www.funnelbranch.com](https://www.funnelbranch.com).
 
-## Zero Config Setup
+## Script Tag
 
-Include the following script on your HTML pages after substituting the `<PROJECT_ID>` placeholder.
+Include the following script tag on every HTML page.
 
 ```html
 <script src="https://js.funnelbranch.com/funnelbranch.js?projectId=<PROJECT_ID>"></script>
 ```
 
-This will auto-initialize a Funnelbranch instance and immediately:
+## Script Tag Options
 
-- submit the client's current URL
-- automatically track and submit client-side URL changes (for SPAs)
+The script tag can also be initialized with query parameter options, like this
 
-Additionally, this will make the `Funnelbranch` class variable and the auto-initialized `funnelbranch` instance variable available on the global `window` object.
+```html
+<script src="https://js.funnelbranch.com/funnelbranch.js?projectId=<PROJECT_ID>&cookieDomain=<COOKIE_DOMAIN>&enableLocalhost=true"></script>
+```
+
+Have a look at the manual setup guide below for an overview of all options.
 
 ## Manual Setup
 
-Include the same script on your HTML pages, but omit the `projectId` query parameter.
+Include the same script on your HTML pages, but omit any query parameters.
 
 ```html
 <script src="https://js.funnelbranch.com/funnelbranch.js"></script>
+<script>
+  const funnelbranch = Funnelbranch.initialize('<PROJECT_ID>', options);
+  // The second "options" parameter is not mandatory
+</script>
 ```
 
-This will make the `Funnelbranch` class variable available on the global `window` object.
-The following code sample then shows how to manually initialize a Funnelbranch instance.
+Here's an overview of all possible options.
 
 ```ts
 type Options = {
-  controlGroup?: 'A' | 'B';
-  // Default: undefined
+  controlGroup?: 'A' | 'B'; // Default: undefined
 
-  cookieDomain?: string;
-  // Default: current domain
+  cookieDomain?: string; // Default: current domain
 
-  enableLocalhost?: boolean;
-  // Default: false
+  enableLocalhost?: boolean; // Default: false
 
-  trackClientUrlChanges?: boolean;
-  // Default: true
+  trackClientUrlChanges?: boolean; // Default: true
 
-  trackClientHashChanges?: boolean;
-  // Default: false
+  trackClientHashChanges?: boolean; // Default: false
 };
-
-const options = {};
-const funnelbranch = Funnelbranch.initialize('<PROJECT_ID>', options);
 ```
-
-Initializing Funnelbranch this way will immediately:
-
-- submit the client's current URL
-- if configured, automatically track and submit client-side URL changes (for SPAs)
 
 ## Instance API
 
@@ -71,6 +64,9 @@ To stop tracking client-side URLs and cancel all browser API subscriptions, use 
 funnelbranch.destroy();
 ```
 
-## NPM
+Note that if you're using the automatic script tag initialization,
+the Funnelbranch instance is automatically available as `window.funnelbranch`.
 
-Check out the official [Funnelbranch Script Wrapper](https://github.com/funnelbranch/funnelbranch-script-npm) module for using this script with SPA frameworks like React and Angular.
+## Frameworks (React, Angular)
+
+Check out the official [Funnelbranch Script Wrapper](https://github.com/funnelbranch/funnelbranch-script-npm) (NPM) module for using this script with SPA frameworks like React and Angular.

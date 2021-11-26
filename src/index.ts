@@ -78,7 +78,7 @@ class Funnelbranch {
   private localhost: boolean;
   private lastMatch?: SubmitMatchRequest;
 
-  private constructor(private readonly projectId: string, private readonly options: Options) {
+  private constructor(public readonly projectId: string, public readonly options: Options) {
     // Services
     this.botService = new BotService();
     this.cookieService = new CookieService(options.cookieDomain);
@@ -164,12 +164,21 @@ class Funnelbranch {
 Object.assign(window, { Funnelbranch });
 
 // Auto-initialize
-const script = document.querySelector<HTMLScriptElement>('script[src^="https://js.funnelbranch.com/funnelbranch.js"]');
+const script = document.querySelector<HTMLScriptElement>('script[src^="https://js.funnelbranch.com/funnelbranch.js\\?"]');
 if (script) {
-  const pattern = /projectId=([\w_-]+)/;
-  const match = pattern.exec(script.src);
-  if (match) {
-    const funnelbranch = Funnelbranch.initialize(match[1]);
+  const options: any = {};
+  new URLSearchParams(script.src.substring(script.src.indexOf('?') + 1)).forEach((value, key) => {
+    options[key] = value;
+  });
+  if (options.projectId) {
+    // Convert boolean options
+    const booleanOption: Array<keyof Options> = ['enableLocalhost', 'trackClientUrlChanges', 'trackClientHashChanges'];
+    booleanOption.forEach((option) => {
+      if (typeof options[option] === 'string') {
+        (options[option] as boolean) = options[option] === 'true';
+      }
+    });
+    const funnelbranch = Funnelbranch.initialize(options.projectId, options);
     Object.assign(window, { funnelbranch });
   }
 }
