@@ -24,7 +24,8 @@ Have a look at the manual setup guide below for an overview of all options.
 
 ## Manual Setup
 
-Include the same script on your HTML pages, but omit any query parameters.
+First: include the same script tag on every HTML page, but omit any query parameters.
+Second: manually initialize Funnelbranch via the `Funnelbranch.initialize(...)` method.
 
 ```html
 <script src="https://js.funnelbranch.com/funnelbranch.js"></script>
@@ -38,15 +39,20 @@ Here's an overview of all possible options.
 
 ```ts
 type Options = {
-  controlGroup?: 'A' | 'B'; // Default: undefined
+  controlGroup?: 'A' | 'B';
+  // Default: undefined
 
-  cookieDomain?: string; // Default: current domain
+  cookieDomain?: string;
+  // Default: current domain
 
-  enableLocalhost?: boolean; // Default: false
+  enableLocalhost?: boolean;
+  // Default: false
 
-  trackClientUrlChanges?: boolean; // Default: true
+  trackClientUrlChanges?: boolean;
+  // Default: true
 
-  trackClientHashChanges?: boolean; // Default: false
+  trackClientHashChanges?: boolean;
+  // Default: false
 };
 ```
 
@@ -64,8 +70,8 @@ To stop tracking client-side URLs and cancel all browser API subscriptions, use 
 funnelbranch.destroy();
 ```
 
-Note that if you're using the automatic script tag initialization,
-the Funnelbranch instance is automatically available as `window.funnelbranch`.
+Note that if you're using automatic script tag initialization,
+the Funnelbranch instance is automatically made available under `window.funnelbranch`.
 
 ## Frameworks (React, Angular)
 
