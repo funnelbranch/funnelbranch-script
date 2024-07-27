@@ -1,3 +1,7 @@
+# ❌ Funnelbranch has been discontinued ❌
+
+❌ The script below will no longer work.
+
 # Funnelbranch Script
 
 This is the official source code repository for the [`funnelbranch.js`](https://js.funnelbranch.com/funnelbranch.js) script.
