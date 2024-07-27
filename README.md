@@ -1,6 +1,6 @@
 # ❌ Funnelbranch has been discontinued ❌
 
-❌ The script below will no longer work.
+❌ The script will no longer work.
 
 # Funnelbranch Script
 
